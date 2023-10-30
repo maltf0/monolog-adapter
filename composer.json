@@ -1,5 +1,5 @@
 {
-  "name": "bitrix-expert/monolog-adapter",
+  "name": "maltf0/monolog-adapter",
   "description": "Monolog adapter for Bitrix CMS",
   "keywords": ["bitrix", "monolog", "logger", "log", "psr-3"],
   "type": "library",

@@ -6,28 +6,30 @@
 
 namespace Bex\Monolog\Handler;
 
-use Monolog\Handler\AbstractProcessingHandler;
-use Monolog\Logger;
 use Bex\Monolog\Formatter\BitrixFormatter;
+use CEventLog;
+use Monolog\Handler\AbstractProcessingHandler;
+use Monolog\Level;
+use Monolog\LogRecord;
 
 /**
  * Monolog handler for the event log of Bitrix CMS.
- * 
+ *
  * @author Nik Samokhvalov <nik@samokhvalov.info>
  */
 class BitrixHandler extends AbstractProcessingHandler
 {
-    private $event;
-    private $module;
-    private $siteId;
+    private string $event;
+    private string $module;
+    private string $siteId;
 
     /**
      * @param string $event Type of event in the event log of Bitrix.
      * @param string $module Code of the module in Bitrix.
-     * @param int $level The minimum logging level at which this handler will be triggered.
+     * @param int|level $level The minimum logging level at which this handler will be triggered.
      * @param bool $bubble Whether the messages that are handled can bubble up the stack or not.
      */
-    public function __construct($event = null, $module = null, $level = Logger::DEBUG, $bubble = true)
+    public function __construct($event = null, $module = null, int|level $level = Level::Debug, bool $bubble = true)
     {
         parent::__construct($level, $bubble);
 
@@ -38,9 +40,9 @@ class BitrixHandler extends AbstractProcessingHandler
     /**
      * {@inheritdoc}
      */
-    protected function write(array $record)
+    protected function write(LogRecord $record): void
     {
-        \CEventLog::Log(
+        CEventLog::Log(
             $record['formatted']['level'],
             $this->getEvent(),
             $this->getModule(),
@@ -53,67 +55,67 @@ class BitrixHandler extends AbstractProcessingHandler
     /**
      * {@inheritdoc}
      */
-    protected function getDefaultFormatter()
+    protected function getDefaultFormatter(): BitrixFormatter
     {
         return new BitrixFormatter();
     }
 
     /**
      * Sets event type for log of Bitrix.
-     * 
+     *
      * @param string $event
      */
-    public function setEvent($event)
+    public function setEvent(string $event): void
     {
         $this->event = $event;
     }
 
     /**
      * Gets event type.
-     * 
+     *
      * @return string
      */
-    public function getEvent()
+    public function getEvent(): string
     {
         return $this->event;
     }
 
     /**
      * Sets module for log of Bitrix.
-     * 
+     *
      * @param string $module
      */
-    public function setModule($module)
+    public function setModule(string $module): void
     {
         $this->module = $module;
     }
 
     /**
      * Gets module.
-     * 
+     *
      * @return string
      */
-    public function getModule()
+    public function getModule(): string
     {
         return $this->module;
     }
 
     /**
      * Sets site ID for log of Bitrix.
-     * 
+     *
      * @param string $siteId
      */
-    public function setSite($siteId)
+    public function setSite(string $siteId): void
     {
         $this->siteId = $siteId;
     }
 
     /**
      * Gets site ID.
-     * 
+     *
      * @return string
      */
-    public function getSite()
+    public function getSite(): string
     {
         return $this->siteId;
     }

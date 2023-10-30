@@ -7,18 +7,19 @@
 namespace Bex\Monolog\Formatter;
 
 use Monolog\Formatter\FormatterInterface;
-use Monolog\Logger;
+use Monolog\Level;
+use Monolog\LogRecord;
 
 /**
  * Record formatter for event log of Bitrix Control Panel.
- * 
- * Context of record will also be written to event log of Bitrix. You can specify ID of item for event log Bitrix 
+ *
+ * Context of record will also be written to event log of Bitrix. You can specify ID of item for event log Bitrix
  * through key `item_id` in the context of record:
- * 
+ *
  * ```php
  * $logger->error('message', array('item_id' => 21));
  * ```
- * 
+ *
  * @author Nik Samokhvalov <nik@samokhvalov.info>
  */
 class BitrixFormatter implements FormatterInterface
@@ -26,23 +27,17 @@ class BitrixFormatter implements FormatterInterface
     /**
      * {@inheritdoc}
      */
-    public function format(array $record)
+    public function format(LogRecord $record)
     {
         $record['item_id'] = null;
         $record['level'] = static::toBitrixLevel($record['level']);
 
-        if (!empty($record['context']))
-        {
-            foreach ($record['context'] as $field => $value)
-            {
-                if ($field === 'item_id')
-                {
+        if (!empty($record['context'])) {
+            foreach ($record['context'] as $field => $value) {
+                if ($field === 'item_id') {
                     $record['item_id'] = $value;
-                }
-                else
-                {
-                    if (is_array($value))
-                    {
+                } else {
+                    if (is_array($value)) {
                         $value = var_export($value, true);
                     }
 
@@ -59,10 +54,9 @@ class BitrixFormatter implements FormatterInterface
      */
     public function formatBatch(array $records)
     {
-        $formatted = array();
+        $formatted = [];
 
-        foreach ($records as $record)
-        {
+        foreach ($records as $record) {
             $formatted[] = $this->format($record);
         }
 
@@ -72,38 +66,17 @@ class BitrixFormatter implements FormatterInterface
     /**
      * Converts Monolog levels to Bitrix ones if necessary.
      *
-     * @param int $level Level number.
+     * @param int|Level $level Level number.
      *
-     * @return string|bool
+     * @return string
      */
-    public static function toBitrixLevel($level)
+    public static function toBitrixLevel(int|Level $level): string
     {
-        $levels = static::logLevels();
-
-        if (isset($levels[$level]))
-        {
-            return $levels[$level];
-        }
-
-        return false;
-    }
-
-    /**
-     * Translates Monolog log levels to Bitrix levels.
-     *
-     * @return array
-     */
-    public static function logLevels()
-    {
-        return array(
-            Logger::DEBUG => 'DEBUG',
-            Logger::INFO => 'INFO',
-            Logger::NOTICE => 'WARNING',
-            Logger::WARNING => 'WARNING',
-            Logger::ERROR => 'ERROR',
-            Logger::CRITICAL => 'ERROR',
-            Logger::ALERT => 'ERROR',
-            Logger::EMERGENCY => 'ERROR',
-        );
+        return match ($level) {
+            Level::Debug => 'DEBUG',
+            Level::Info => 'INFO',
+            Level::Notice, Level::Warning => 'WARNING',
+            Level::Error, Level::Alert, Level::Critical, Level::Emergency => 'ERROR',
+        };
     }
 }

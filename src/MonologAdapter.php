@@ -16,7 +16,7 @@ use Cascade\Cascade;
  */
 class MonologAdapter
 {
-    protected static $isConfigurationLoaded = false;
+    protected static bool $isConfigurationLoaded = false;
 
     /**
      * Load a configuration for the loggers from `.settings.php` or `.settings_extra.php`.
@@ -25,14 +25,14 @@ class MonologAdapter
      *
      * @return bool
      */
-    public static function loadConfiguration($force = false)
+    public static function loadConfiguration(bool $force = false): bool
     {
-        if ($force === false && static::$isConfigurationLoaded === true)
+        if ($force === false && static::$isConfigurationLoaded)
         {
             return true;
         }
 
-        if (class_exists('\Bitrix\Main\Config\Configuration'))
+        if (class_exists(Configuration::class))
         {
             $config = Configuration::getInstance()->get('monolog');
 

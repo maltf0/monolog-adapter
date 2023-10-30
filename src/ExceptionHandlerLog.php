@@ -41,8 +41,8 @@ use Monolog\Registry;
  *                          ];
  *                      },
  *                      'rules' => array(
- *					        '!instanceof' => '\Vendor\Exception\UnloggedInterface',
- *					    )
+ *                            '!instanceof' => '\Vendor\Exception\UnloggedInterface',
+ *                        )
  *                  ),
  *              ),
  *          ),
@@ -58,7 +58,7 @@ class ExceptionHandlerLog extends \Bitrix\Main\Diag\ExceptionHandlerLog
     /**
      * @var Logger
      */
-    protected $logger;
+    protected Logger $logger;
 
     /**
      * @var callable
@@ -68,49 +68,40 @@ class ExceptionHandlerLog extends \Bitrix\Main\Diag\ExceptionHandlerLog
     /**
      * @var string[]
      */
-    protected $rules = array();
+    protected array $rules = [];
 
     /**
      * {@inheritdoc}
      */
-    public function initialize(array $options)
+    public function initialize(array $options): void
     {
-        if (!isset($options['logger']))
-        {
+        if (!isset($options['logger'])) {
             throw new ArgumentNullException('logger');
         }
 
-        if (is_array($options['rules']) && !empty($options['rules']))
-        {
+        if (is_array($options['rules']) && !empty($options['rules'])) {
             $this->rules = $options['rules'];
         }
 
-        if (is_callable($options['context']))
-        {
+        if (is_callable($options['context'])) {
             $this->context = $options['context'];
         }
 
         $this->logger = Registry::getInstance($options['logger']);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function write($exception, $logType)
+
+    public function write($exception, $logType): void
     {
-        foreach ($this->rules as $rule => $condition)
-        {
-            switch ($rule)
-            {
+        foreach ($this->rules as $rule => $condition) {
+            switch ($rule) {
                 case '!instanceof':
-                    if ($exception instanceof $condition)
-                    {
+                    if ($exception instanceof $condition) {
                         return;
                     }
                     break;
                 case 'instanceof':
-                    if (!($exception instanceof $condition))
-                    {
+                    if (!($exception instanceof $condition)) {
                         return;
                     }
                     break;
@@ -119,14 +110,13 @@ class ExceptionHandlerLog extends \Bitrix\Main\Diag\ExceptionHandlerLog
 
         $context = is_callable($this->context) ? call_user_func($this->context, $exception) : null;
 
-        if ($context === null)
-        {
-            $context = array(
+        if ($context === null) {
+            $context = [
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
                 'trace' => $exception->getTrace(),
-                'logType' => $logType
-            );
+                'logType' => $logType,
+            ];
         }
 
         $this->logger->emergency($exception->getMessage(), $context);

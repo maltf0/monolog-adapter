@@ -16,7 +16,7 @@
     "maltf0/monolog-cascade": "^1.0"
   },
   "autoload": {
-    "psr-4": {"Bex\\Monolog\\": "src/"},
+    "psr-4": {"Bex\\Monolog\\": "src/"}
   },
   "repositories": [
     {
